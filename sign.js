@@ -25,7 +25,7 @@ var url = regBase+'/'+name+'/'+ver;
 request.get({uri:url, json:true}, function(err, resp, pkg){
     if(err || !pkg || !pkg.dist) return error("can't find in the registry at "+url);
     var js = {};
-    var data = pkg.dist.shasum + ' ' + pkg.dist.tarball;
+    var data = pkg.dist.shasum + ' ' + path.basename(pkg.dist.tarball);
     js.sig = sign(data);
     if(!js.sig) return error("signing failed");
     console.log("signed "+data);
