@@ -7,9 +7,7 @@ var commander = require('commander');
 var regBase = 'http://registry.singly.com';
 var burrowBase = "https://burrow.singly.com";
 
-//sign using private key, of sha1+name-of-tarball
-//publish signature to registry as attachment + version
-//update timestamp so that it shows up again in /all feed
+// this was all written just enough to make it work minimally, expecting it to get updates as it's used more :)
 
 var keyFile = process.argv[2];
 var namever = process.argv[3];
@@ -33,15 +31,26 @@ request.get({uri:url, json:true}, function(err, resp, pkg){
         var auth = (new Buffer(up,"ascii").toString("base64"));
         upload(name, 'signature-'+ver, JSON.stringify(js), auth, function(e, res, body){
             if(e) return error(e);
-            if(res.statusCode != 200) return error(body);
-            console.log("signed and delivered! Go close the issue :)");
-            process.exit(0);
+            if(res.statusCode != 200 && res.statusCode != 201) return error("upload:"+res.statusCode);
+            // set the latest version signed
+            var url = burrowBase+'/registry/'+name;
+            request.get({uri:url, json:true}, function(err, resp, pkg){
+                if(err || !pkg || !pkg._rev) return error("can't find in the registry at "+url);
+                pkg.signed_ver = ver;
+                request.put({uri:url, headers:{"Content-Type":"application/json", Authorization:"Basic " + auth}, json:pkg}, function(e, res, body){
+                    if(e) return error(e);
+                    if(res.statusCode != 200 && res.statusCode != 201) return error("put: "+res.statusCode+" "+JSON.stringify(body));
+                    console.log("signed and delivered! Go close the issue :)");
+                    process.exit(0);
+                })
+            });
         });
     });
 });
 
 function error(msg)
 {
+    console.error("Error: ");
     console.error(msg);
     process.exit(1);
 }
