@@ -37,6 +37,7 @@ request.get({uri:url, json:true}, function(err, resp, pkg){
             request.get({uri:url, json:true}, function(err, resp, pkg){
                 if(err || !pkg || !pkg._rev) return error("can't find in the registry at "+url);
                 pkg.signed_ver = ver;
+                pkg["dist-tags"].signed = ver;
                 request.put({uri:url, headers:{"Content-Type":"application/json", Authorization:"Basic " + auth}, json:pkg}, function(e, res, body){
                     if(e) return error(e);
                     if(res.statusCode != 200 && res.statusCode != 201) return error("put: "+res.statusCode+" "+JSON.stringify(body));
