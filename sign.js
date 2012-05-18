@@ -4,8 +4,8 @@ var crypto = require("crypto");
 var path = require('path');
 var commander = require('commander');
 
-var regBase = 'http://registry.singly.com';
-var burrowBase = "https://burrow.singly.com";
+var regBase = 'http://registry.hubinga.com';
+var burrowBase = "http://burrow.hubinga.com";
 
 // this was all written just enough to make it work minimally, expecting it to get updates as it's used more :)
 
